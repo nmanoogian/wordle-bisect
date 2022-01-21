@@ -1,15 +1,11 @@
-const fs = require('fs').promises;
+const { validWords, targetWords } = require('./words');
 
-const WORDS_FILENAME = "/usr/share/dict/words";
 const LETTERS = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
 
 async function main() {
-    const data = await fs.readFile(WORDS_FILENAME, "utf8");
-    const words = data.split("\n");
-    const fiveLetterWords = words.filter(w => w.length === 5 && w === w.toLowerCase());
     const letterScores = Object.fromEntries(LETTERS.map(letter => {
-        const numContaining = fiveLetterWords.filter(w => w.includes(letter)).length;
-        const percentContaining = numContaining / fiveLetterWords.length;
+        const numContaining = targetWords.filter(w => w.includes(letter)).length;
+        const percentContaining = numContaining / targetWords.length;
         const distanceFromHalf = Math.abs(50 - (percentContaining * 100))
         // `percentContaining * 100` would have worked find for a score here because no letters
         // in English are present in more than 50% of words.
@@ -17,7 +13,7 @@ async function main() {
         const score = 50 - distanceFromHalf;
         return [letter, score];
     }))
-    const scoredWords = fiveLetterWords
+    const scoredWords = validWords
         .map(word => {
             const partialScores = [...new Set([...word])].map(l => letterScores[l]);
             const score = partialScores.reduce((acc, s) => acc + s, 0);
