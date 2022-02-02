@@ -19,8 +19,8 @@ function chalkedGuess(guess, target) {
 }
 
 async function main() {
-  const target = "moist";
-  const guesses = ["orate", "toils", "moist"];
+  const guesses = process.argv.slice(2);
+  const target = guesses[guesses.length - 1];
 
   let possibles = validWords;
   console.log(possibles.length, "possibles");
