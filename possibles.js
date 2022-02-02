@@ -1,31 +1,47 @@
-const { validWords } = require('./words');
+import { validWords } from "./words.js"
+import chalk from "chalk";
+
+function scoreGuess(guess, target) {
+  return [...guess].map((guessLetter, i) => {
+    const targetLetter = target[i];
+    if (guessLetter === targetLetter) {
+      return [guessLetter, "green"];
+    } else if (target.includes(guessLetter)) {
+      return [guessLetter, "yellow"];
+    } else {
+      return [guessLetter, "grey"];
+    }
+  });
+}
+
+function chalkedGuess(guess, target) {
+  return scoreGuess(guess, target).map(([guessLetter, color]) => chalk[color](guessLetter)).join("")
+}
 
 async function main() {
-  const target = "";
-  const guesses = [];
+  const target = "moist";
+  const guesses = ["orate", "toils", "moist"];
 
   let possibles = validWords;
   console.log(possibles.length, "possibles");
 
   for (const guess of guesses) {
+    const scoredGuess = scoreGuess(guess, target);
+
     possibles = possibles.filter(word => {
       return [...word].map((letter, i) => {
-        const guessLetter = guess[i];
-        const targetLetter = target[i];
+        const [guessLetter, color] = scoredGuess[i];
 
-        if (guessLetter === targetLetter) {
-          // Green
+        if (color === "green") {
           return guessLetter === letter;
-        } else if (target.includes(guessLetter)) {
-          // Yellow
+        } else if (color === "yellow") {
           return guessLetter !== letter && word.includes(guessLetter);
         } else {
-          // Grey
           return !word.includes(guessLetter);
         }
       }).every(p => p);
     })
-    console.log(guess, possibles.length, "possibles");
+    console.log(chalkedGuess(guess, target), "::", possibles.length, "possibles");
   }
 }
 
