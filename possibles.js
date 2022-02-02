@@ -1,26 +1,31 @@
 const { validWords } = require('./words');
 
 async function main() {
-  const guesses = [
-    [["o", "y"], ["r", "d"], ["a", "d"], ["t", "y"], ["e", "d"]],
-    [["t", "y"], ["o", "g"], ["i", "g"], ["l", "d"], ["s", "y"]],
-  ];
+  const target = "";
+  const guesses = [];
+
   let possibles = validWords;
   console.log(possibles.length, "possibles");
+
   for (const guess of guesses) {
     possibles = possibles.filter(word => {
       return [...word].map((letter, i) => {
-        const [guessLetter, guessResult] = guess[i];
-        if (guessResult === "g") {
+        const guessLetter = guess[i];
+        const targetLetter = target[i];
+
+        if (guessLetter === targetLetter) {
+          // Green
           return guessLetter === letter;
-        } else if (guessResult === "y") {
+        } else if (target.includes(guessLetter)) {
+          // Yellow
           return guessLetter !== letter && word.includes(guessLetter);
         } else {
+          // Grey
           return !word.includes(guessLetter);
         }
       }).every(p => p);
     })
-    console.log(guess.map(p => p[0]).join(""), possibles.length, "possibles");
+    console.log(guess, possibles.length, "possibles");
   }
 }
 
