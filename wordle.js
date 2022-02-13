@@ -1,4 +1,6 @@
 import { validWords, targetWords } from "./words.js";
+import { getPossibles, chalkedGuess } from "./possibles.js";
+import cliProgress from "cli-progress";
 
 const LETTERS = [
   "a",
@@ -29,7 +31,7 @@ const LETTERS = [
   "z",
 ];
 
-async function main() {
+async function mainLetterScores() {
   const letterScores = Object.fromEntries(
     LETTERS.map((letter) => {
       const numContaining = targetWords.filter((w) =>
@@ -59,17 +61,54 @@ async function main() {
 }
 
 async function mainPossibleOptimizer() {
-  const scoredWords = validWords
+  const bar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+  bar.start(targetWords.length, 0);
+  const scoredWords = targetWords
     .map((word) => {
-      const partialScores = [...new Set([...word])].map((l) => letterScores[l]);
-      const score = partialScores.reduce((acc, s) => acc + s, 0);
+      const possibles = targetWords.map(
+        (targetWord) => getPossibles(targetWords, word, targetWord).length
+      );
+      const score = possibles.reduce((a, b) => a + b) / possibles.length;
+      bar.increment();
       return {
         word: word,
         score: score,
       };
     })
-    .sort((sw1, sw2) => sw2.score - sw1.score);
-  console.log(scoredWords);
+    .sort((sw1, sw2) => sw1.score - sw2.score);
+  bar.stop();
+  console.log(scoredWords.slice(0, 100));
 }
 
-main().catch(console.error);
+async function mainPossibles() {
+  const guesses = process.argv.slice(3);
+  const target = guesses[guesses.length - 1];
+
+  let possibles = validWords;
+  console.log(possibles.length, "possibles");
+
+  for (const guess of guesses) {
+    possibles = getPossibles(possibles, guess, target);
+    console.log(
+      chalkedGuess(guess, target),
+      "::",
+      possibles.length,
+      "possibles"
+    );
+  }
+}
+
+switch (process.argv[2]) {
+  case "letterScore": {
+    mainLetterScores().catch(console.error);
+    break;
+  }
+  case "possiblesOptimize": {
+    mainPossibleOptimizer().catch(console.error);
+    break;
+  }
+  case "possibles": {
+    mainPossibles().catch(console.error);
+    break;
+  }
+}

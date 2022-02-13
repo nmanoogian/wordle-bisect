@@ -20,6 +20,7 @@
   "homepage": "https://github.com/nmanoogian/wordle-bisect#readme",
   "dependencies": {
     "chalk": "^5.0.0",
+    "cli-progress": "^3.10.0",
     "prettier": "^2.5.1"
   }
 }

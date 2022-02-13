@@ -1,7 +1,6 @@
-import { validWords } from "./words.js";
 import chalk from "chalk";
 
-function scoreGuess(guess, target) {
+export function scoreGuess(guess, target) {
   return [...guess].map((guessLetter, i) => {
     const targetLetter = target[i];
     if (guessLetter === targetLetter) {
@@ -14,13 +13,13 @@ function scoreGuess(guess, target) {
   });
 }
 
-function chalkedGuess(guess, target) {
+export function chalkedGuess(guess, target) {
   return scoreGuess(guess, target)
     .map(([guessLetter, color]) => chalk[color](guessLetter))
     .join("");
 }
 
-function getPossibles(possibles, guess, target) {
+export function getPossibles(possibles, guess, target) {
   const scoredGuess = scoreGuess(guess, target);
 
   return possibles.filter((word) => {
@@ -39,23 +38,3 @@ function getPossibles(possibles, guess, target) {
       .every((p) => p);
   });
 }
-
-async function main() {
-  const guesses = process.argv.slice(2);
-  const target = guesses[guesses.length - 1];
-
-  let possibles = validWords;
-  console.log(possibles.length, "possibles");
-
-  for (const guess of guesses) {
-    possibles = getPossibles(possibles, guess, target);
-    console.log(
-      chalkedGuess(guess, target),
-      "::",
-      possibles.length,
-      "possibles"
-    );
-  }
-}
-
-main().catch(console.error);
